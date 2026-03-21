@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PageIndex — User Manual</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sidebar-logo-text">PageIndex</div>
+        <div class="sidebar-logo-sub">User Manual</div>
+      </div>
+    </a>
+
+    <div class="sidebar-nav">
+      <div class="nav-section">Getting Started</div>
+      <a href="index.html" class="nav-link active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Overview
+      </a>
+      <a href="workflow.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Pipeline Workflow
+      </a>
+
+      <div class="nav-section" style="margin-top:12px">Agents</div>
+      <a href="clerk.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Clerk Agent
+      </a>
+      <a href="registrar.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Registrar Agent
+      </a>
+      <a href="judge.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Judge Agent
+      </a>
+
+      <div class="nav-section" style="margin-top:12px">Reference</div>
+      <a href="statuses.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Status Reference
+      </a>
+    </div>
+  </nav>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-breadcrumb">PageIndex Manual</div>
+    </div>
+
+    <div class="page">
+
+      <div class="page-hero">
+        <div class="page-tag">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          User Manual v1.0
+        </div>
+        <h1 class="page-title">PageIndex Adversarial<br>Pipeline Manual</h1>
+        <p class="page-lead">A step-by-step guide to using PageIndex's three-agent legal analysis pipeline — from uploading documents through to receiving a draft court order.</p>
+      </div>
+
+      <!-- Pipeline diagram -->
+      <div class="pipeline">
+        <div class="pipe-step upload">
+          <div class="pipe-circle">📄</div>
+          <div class="pipe-label">Upload</div>
+          <div class="pipe-sub">PDF documents</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step clerk">
+          <div class="pipe-circle">🗂️</div>
+          <div class="pipe-label">Clerk</div>
+          <div class="pipe-sub">Extract & structure</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step registrar">
+          <div class="pipe-circle">⚖️</div>
+          <div class="pipe-label">Registrar</div>
+          <div class="pipe-sub">Frame issues</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step gate">
+          <div class="pipe-circle">🔍</div>
+          <div class="pipe-label">Review</div>
+          <div class="pipe-sub">Human approval</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step judge">
+          <div class="pipe-circle">🔨</div>
+          <div class="pipe-label">Judge</div>
+          <div class="pipe-sub">IRAC & order</div>
+        </div>
+      </div>
+
+      <h2 id="what-is">What is PageIndex?</h2>
+      <p>PageIndex is a reasoning-based document intelligence platform. Its core feature — building hierarchical tree indexes from PDFs — is now extended with an <strong>Adversarial Multi-Agent Synthesis Pipeline</strong> specifically designed for legal adjudication.</p>
+      <p>The pipeline takes two opposing legal documents (Petitioner and Respondent), passes them through three AI agents, and produces a structured draft court order with full IRAC reasoning on every contested issue.</p>
+
+      <h2 id="three-agents">The Three Agents</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">🗂️</div>
+          <div class="card-title">Clerk Agent</div>
+          <div class="card-body">Reads each party's document and extracts structured facts, legal issues raised, statutory citations, and prayers for relief. Runs in parallel for both parties.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚖️</div>
+          <div class="card-title">Registrar Agent</div>
+          <div class="card-body">Compares both clerk outputs side-by-side and frames every contested issue neutrally — mapping each party's arguments and citations against the same issue.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔨</div>
+          <div class="card-title">Judge Agent</div>
+          <div class="card-body">Applies IRAC (Issue–Rule–Application–Conclusion) reasoning to each framed issue in sequence, then synthesises a final court order.</div>
+        </div>
+      </div>
+
+      <h2 id="human-gate">The Human Review Gate</h2>
+      <p>Between the Registrar and the Judge there is a mandatory <strong>human review gate</strong>. No AI analysis proceeds until a human reviewer has examined the Adversarial Matrix and clicked <strong>Approve</strong>.</p>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong>Why this matters:</strong> The Adversarial Matrix determines what issues the Judge will decide and how each party's stance is characterised. A poorly framed matrix leads to a poorly reasoned order. Always review carefully before approving.</div>
+      </div>
+
+      <h2 id="quick-start">Quick Start (5 steps)</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Upload both documents</div>
+            <div class="step-desc">Use the Documents panel to upload the Petitioner's and Respondent's PDFs. Wait for PageIndex processing to complete (status turns green).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Create a Case</div>
+            <div class="step-desc">In the Cases section, click <code>+</code> and give the case a title (e.g. "Ramesh Kumar v. MCD"). Then go to <strong>Setup</strong>, attach one document as Petitioner and one as Respondent.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Run the Clerk Agent</div>
+            <div class="step-desc">Click <strong>▶ Run Clerk Agent</strong>. Both documents are processed in parallel. Switch to the <strong>Clerk</strong> tab to review extracted facts, issues, citations, and prayers.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Review and approve the Adversarial Matrix</div>
+            <div class="step-desc">Click <strong>▶ Run Registrar Agent</strong> from the Clerk tab. Then go to the <strong>Registrar</strong> tab, review every framed issue, and click <strong>✓ Approve</strong>.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">Run the Judge and export</div>
+            <div class="step-desc">Click <strong>▶ Run Judge Agent</strong>. Navigate to the <strong>Judge</strong> tab to read the IRAC analysis and final order. Export as Markdown with the download button.</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="documents">Document Types Supported</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Document Type</th><th>Typically filed by</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Petition</strong></td><td>Petitioner</td><td>The originating document laying out the grievance and prayers.</td></tr>
+            <tr><td><strong>Reply</strong></td><td>Respondent</td><td>The respondent's counter to the petition.</td></tr>
+            <tr><td><strong>Rejoinder</strong></td><td>Petitioner</td><td>Petitioner's response to the respondent's reply.</td></tr>
+            <tr><td><strong>Affidavit</strong></td><td>Either</td><td>Sworn factual statement in support of pleadings.</td></tr>
+            <tr><td><strong>Exhibit</strong></td><td>Either</td><td>Documentary evidence annexed to a pleading.</td></tr>
+            <tr><td><strong>Other</strong></td><td>Either</td><td>Any other filing (e.g. written submissions, notes).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body"><strong>Tip:</strong> You can try the pipeline immediately without uploading any files. In the Cases panel, click <strong>Try sample case</strong> to load a pre-filled demo (Ramesh Kumar v. Municipal Corporation of Delhi — a property tax dispute) with all stages already complete.</div>
+      </div>
+
+    </div>
+
+    <div class="page-nav">
+      <div class="page-nav-spacer"></div>
+      <a href="workflow.html" class="page-nav-link next">Pipeline Workflow</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AdversarialMatrix",
+  "description": "Output of the Registrar Agent. Maps both parties' arguments issue-by-issue into a neutral matrix for human review before the Judge Agent runs.",
+  "type": "object",
+  "properties": {
+    "undisputed_background": {
+      "type": "array",
+      "description": "Facts agreed upon by both parties or not contested.",
+      "items": { "type": "string" }
+    },
+    "framed_issues": {
+      "type": "array",
+      "description": "Each legal issue framed neutrally, with both parties' stances mapped against it.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_id": {
+            "type": "string",
+            "description": "Unique identifier e.g. I-1, I-2. Used by Judge Agent to iterate."
+          },
+          "neutral_issue_statement": {
+            "type": "string",
+            "description": "The issue stated without favouring either party."
+          },
+          "petitioner_stance": {
+            "type": "object",
+            "properties": {
+              "arguments": { "type": "array", "items": { "type": "string" } },
+              "supporting_citations": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["arguments", "supporting_citations"]
+          },
+          "respondent_stance": {
+            "type": "object",
+            "properties": {
+              "arguments": { "type": "array", "items": { "type": "string" } },
+              "supporting_citations": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["arguments", "supporting_citations"]
+          }
+        },
+        "required": ["issue_id", "neutral_issue_statement", "petitioner_stance", "respondent_stance"]
+      }
+    },
+    "human_review_status": {
+      "type": "string",
+      "enum": ["pending", "approved", "rejected"],
+      "description": "Gate field. Judge Agent must not run unless this is 'approved'."
+    }
+  },
+  "required": ["undisputed_background", "framed_issues", "human_review_status"]
+}

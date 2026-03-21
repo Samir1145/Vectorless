@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "StandardizedPartySubmission",
+  "description": "Output of the Clerk Agent. Normalizes one party's raw legal filing into structured data for the Registrar Agent.",
+  "type": "object",
+  "properties": {
+    "party_role": {
+      "type": "string",
+      "enum": ["Petitioner", "Respondent"],
+      "description": "Which party this submission belongs to."
+    },
+    "document_type": {
+      "type": "string",
+      "enum": ["Petition", "Reply", "Rejoinder", "Affidavit", "Exhibit", "Other"],
+      "description": "Type of legal document ingested."
+    },
+    "extracted_facts": {
+      "type": "array",
+      "description": "Factual statements extracted from the document, each anchored to a source page.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "statement": { "type": "string" },
+          "page_index": { "type": "integer" },
+          "verified": {
+            "type": "boolean",
+            "description": "True if the statement text was found verbatim or near-verbatim in the source page."
+          }
+        },
+        "required": ["statement", "page_index"]
+      }
+    },
+    "issues_raised": {
+      "type": "array",
+      "description": "Legal issues explicitly raised by this party.",
+      "items": { "type": "string" }
+    },
+    "cited_laws_and_cases": {
+      "type": "array",
+      "description": "Statutes, rules, and case citations referenced by this party.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "citation": { "type": "string" },
+          "page_index": { "type": "integer" },
+          "verified": {
+            "type": "boolean",
+            "description": "True if this citation was found verbatim in the source document text."
+          }
+        },
+        "required": ["citation"]
+      }
+    },
+    "prayers": {
+      "type": "array",
+      "description": "Specific reliefs sought by this party.",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["party_role", "extracted_facts", "issues_raised", "cited_laws_and_cases", "prayers"]
+}

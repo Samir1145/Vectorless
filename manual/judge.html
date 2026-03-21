@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Judge Agent — PageIndex Manual</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sidebar-logo-text">PageIndex</div>
+        <div class="sidebar-logo-sub">User Manual</div>
+      </div>
+    </a>
+    <div class="sidebar-nav">
+      <div class="nav-section">Getting Started</div>
+      <a href="index.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Overview
+      </a>
+      <a href="workflow.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Pipeline Workflow
+      </a>
+      <div class="nav-section" style="margin-top:12px">Agents</div>
+      <a href="clerk.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+        Clerk Agent
+      </a>
+      <a href="registrar.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+        Registrar Agent
+      </a>
+      <a href="judge.html" class="nav-link active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Judge Agent
+      </a>
+      <div class="nav-section" style="margin-top:12px">Reference</div>
+      <a href="statuses.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+        Status Reference
+      </a>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-breadcrumb">
+        <a href="index.html">Manual</a>
+        <span class="sep">›</span>
+        Agents
+        <span class="sep">›</span>
+        Judge Agent
+      </div>
+    </div>
+
+    <div class="page">
+
+      <div class="page-hero">
+        <div class="page-tag" style="background:rgba(34,197,94,0.1);color:#16a34a">
+          Stage 3 of 3
+        </div>
+        <h1 class="page-title">Judge Agent</h1>
+        <p class="page-lead">The Judge is the final agent in the pipeline. It applies rigorous IRAC reasoning to each framed issue in sequence, then synthesises a coherent final order — producing a complete, structured draft court order.</p>
+      </div>
+
+      <h2 id="role">Role and Responsibility</h2>
+      <p>The Judge Agent is an <em>adjudication</em> agent. It does not extract or frame — it <em>decides</em>. For each issue in the approved Adversarial Matrix, it applies the law to the facts using the IRAC method and states a specific conclusion. It then writes a single final order synthesising all conclusions.</p>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong>The Judge processes issues one at a time, in sequence.</strong> Each issue is a separate LLM call. This means the Judge for issue I-3 knows the conclusion of I-1 and I-2 before it begins. This models the way a judge actually reasons — later conclusions can build on earlier ones.</div>
+      </div>
+
+      <h2 id="irac">Understanding IRAC</h2>
+      <p>IRAC is the standard legal reasoning framework used in common law jurisdictions:</p>
+
+      <div class="cards three">
+        <div class="card" style="border-top:3px solid #6366f1; grid-column: span 1">
+          <div class="card-icon">I</div>
+          <div class="card-title">Issue</div>
+          <div class="card-body">The specific legal question being decided. Taken directly from the Registrar's neutral_issue_statement.</div>
+        </div>
+        <div class="card" style="border-top:3px solid #3b82f6">
+          <div class="card-icon">R</div>
+          <div class="card-title">Rule</div>
+          <div class="card-body">The applicable law — the statute, section, regulation, or binding precedent that governs this type of question.</div>
+        </div>
+        <div class="card" style="border-top:3px solid #f59e0b">
+          <div class="card-icon">A</div>
+          <div class="card-title">Application</div>
+          <div class="card-body">The reasoning: applying the rule to the specific facts. The Judge weighs both parties' arguments and citations here.</div>
+        </div>
+      </div>
+      <div class="cards" style="margin-top:0">
+        <div class="card" style="border-top:3px solid #22c55e">
+          <div class="card-icon">C</div>
+          <div class="card-title">Conclusion</div>
+          <div class="card-body">A specific, unambiguous ruling on this issue alone — e.g. "Issue I-1 decided in favour of the Petitioner" or "Issue I-2 — remanded for further inquiry."</div>
+        </div>
+        <div class="card" style="border-top:3px solid #ef4444">
+          <div class="card-icon">+ O</div>
+          <div class="card-title">Final Order</div>
+          <div class="card-body">After all issues are decided, the Judge makes one synthesis call to write the ultimate disposition of the case — a formal court order paragraph.</div>
+        </div>
+      </div>
+
+      <h2 id="inputs">Inputs</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Input</th><th>Source</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Case title</strong></td><td>Case record</td><td>Appears in every IRAC call and in the final order header.</td></tr>
+            <tr><td><strong>Undisputed background</strong> (narrative)</td><td>AdversarialMatrix</td><td>Synthesised into a narrative paragraph and passed to every Judge call as context.</td></tr>
+            <tr><td><strong>FramedIssue</strong> (one per call)</td><td>AdversarialMatrix</td><td>Each call receives one issue with both stances. The Judge does not see other issues' full text during its per-issue call.</td></tr>
+            <tr><td><strong>Prior conclusions</strong></td><td>Accumulated ReasonedDecisions</td><td>After each issue, the conclusion is appended to the context for subsequent issues.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="output">Output — Draft Court Order</h2>
+
+      <div class="output-block">
+        <span class="field-name">case_title <span class="field-type">string</span></span>
+        The case name, e.g. "Ramesh Kumar v. Municipal Corporation of Delhi".
+
+        <span class="field-name">background_facts <span class="field-type">string</span></span>
+        A cohesive narrative paragraph synthesised from the undisputed background. This becomes the "Background" section of the order.
+
+        <span class="field-name">reasoned_decisions <span class="field-type">list of ReasonedDecision</span></span>
+        One entry per framed issue, in sequence. Each contains:
+        <br><br>
+        &nbsp;&nbsp;• <strong>issue_id</strong> — matches the matrix (I-1, I-2, …)<br>
+        &nbsp;&nbsp;• <strong>issue_statement</strong> — restated from the matrix<br>
+        &nbsp;&nbsp;• <strong>rule</strong> — the governing law<br>
+        &nbsp;&nbsp;• <strong>analysis</strong> — the application of law to facts<br>
+        &nbsp;&nbsp;• <strong>conclusion</strong> — the specific ruling on this issue
+
+        <span class="field-name">final_order <span class="field-type">string</span></span>
+        The ultimate disposition of the case, synthesised from all conclusions. This is the operative paragraph of the order.
+      </div>
+
+      <h2 id="reading-judge-tab">Reading the Judge Tab</h2>
+
+      <h3>Background Facts</h3>
+      <p>A narrative paragraph at the top. This should read as a coherent, factual introduction to the order — setting the stage for anyone reading the order fresh.</p>
+
+      <h3>Decisions on Issues (IRAC Cards)</h3>
+      <p>Each issue is an expandable card. All cards are open by default. For each card, review:</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">R</div>
+          <div class="step-body">
+            <div class="step-title">Rule — is the governing law correct?</div>
+            <div class="step-desc">The cited statute or precedent should be the primary law governing this type of question. Check that the citation is precise (right section number, right case name and year) and actually applicable to this jurisdiction.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">A</div>
+          <div class="step-body">
+            <div class="step-title">Analysis — is the reasoning logical and balanced?</div>
+            <div class="step-desc">The analysis should address both parties' specific arguments. It should not ignore a material argument by either side. Look for logical gaps — does the conclusion follow from the premises stated?</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">C</div>
+          <div class="step-body">
+            <div class="step-title">Conclusion — is it specific and unambiguous?</div>
+            <div class="step-desc">A conclusion must be clear: who won on this issue, or what further step is directed. Vague conclusions like "the matter needs consideration" are not acceptable — if you see this, it may mean the matrix framing was unclear or the input facts were insufficient.</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Final Order</h3>
+      <p>The final order appears in a highlighted bordered box at the bottom of the Judge tab. This is the operative paragraph — the core of the court's direction. It should:</p>
+      <ul style="margin:8px 0 16px 20px; color:var(--text-2); font-size:14px; line-height:2.2">
+        <li>State whether the petition is <em>allowed</em>, <em>dismissed</em>, or <em>allowed in part</em>.</li>
+        <li>Give specific consequential directions (e.g. quash the notice, direct reassessment, award costs).</li>
+        <li>Be self-contained — a reader should understand the outcome without reading the IRAC analysis.</li>
+        <li>Be in the formal register of a court order (e.g. "The Respondent is directed to…").</li>
+      </ul>
+
+      <div class="callout success">
+        <span class="callout-icon">✅</span>
+        <div class="callout-body"><strong>Good sign:</strong> If the final order naturally follows from the issue-level conclusions and addresses all the prayers, the pipeline has worked well. If the order seems to contradict a conclusion, or misses a key relief, the final synthesis call may need to be re-run (re-run Judge Agent from the Registrar tab after re-approving).</div>
+      </div>
+
+      <h2 id="export">Exporting the Order</h2>
+      <p>Click the <strong>download icon</strong> (↓) in the top-right of the Judge tab to export the complete draft court order as a Markdown file.</p>
+
+      <h3>Export Format</h3>
+      <div class="output-block" style="font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.9;color:#334155">
+        # Ramesh Kumar v. Municipal Corporation of Delhi<br><br>
+        ## Background Facts<br>
+        The Petitioner is the registered owner of…<br><br>
+        ## I-1: Whether individual notice was required…<br><br>
+        **Rule:** Section 116 of the DMC Act, 1957…<br><br>
+        **Analysis:** The Respondent's reliance on general…<br><br>
+        **Conclusion:** Issue I-1 decided in favour of the Petitioner.<br><br>
+        ## Final Order<br>
+        The demand notice dated 7 June 2024 is hereby quashed…
+      </div>
+
+      <h3>Using the Export</h3>
+      <p>The Markdown file is designed to be pasted into any word processor or legal drafting tool. Recommended next steps after export:</p>
+      <ul style="margin:8px 0 16px 20px; color:var(--text-2); font-size:14px; line-height:2.2">
+        <li>Import into Word or Google Docs and apply court-standard formatting (letterhead, cause title, before/after parties lines).</li>
+        <li>Cross-check all citations against primary sources — verify section numbers, case names, and year references.</li>
+        <li>Review the analysis for any jurisdiction-specific nuances the LLM may have missed.</li>
+        <li>Have a qualified legal professional review before any official use.</li>
+      </ul>
+
+      <div class="callout danger">
+        <span class="callout-icon">🚫</span>
+        <div class="callout-body"><strong>Legal disclaimer:</strong> The Draft Court Order produced by the Judge Agent is an AI-generated draft for research and assistance purposes only. It is not legal advice and should not be used as a final court order without independent review and verification by a qualified legal professional. Always verify all citations and conclusions against primary sources.</div>
+      </div>
+
+      <h2 id="quality">Quality of Output — What Affects It</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Factor</th><th>Impact</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Quality of source PDFs</strong></td><td>High</td><td>Ensure PDFs contain selectable text. Image-based PDFs produce empty Clerk output.</td></tr>
+            <tr><td><strong>Completeness of Clerk extraction</strong></td><td>High</td><td>Review Clerk output carefully. If citations or facts are missing, re-run after fixing the source.</td></tr>
+            <tr><td><strong>Accuracy of Registrar framing</strong></td><td>Very high</td><td>The human review gate is your primary control. Use it thoroughly.</td></tr>
+            <tr><td><strong>LLM model used</strong></td><td>Medium</td><td>Larger models (GPT-4o) produce better legal reasoning. Smaller models may miss nuances.</td></tr>
+            <tr><td><strong>Number of framed issues</strong></td><td>Low</td><td>More issues = longer processing time (sequential calls) but does not affect quality per issue.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <div class="page-nav">
+      <a href="registrar.html" class="page-nav-link prev">Registrar Agent</a>
+      <a href="statuses.html" class="page-nav-link next">Status Reference</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

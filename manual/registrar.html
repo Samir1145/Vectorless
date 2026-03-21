@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrar Agent — PageIndex Manual</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sidebar-logo-text">PageIndex</div>
+        <div class="sidebar-logo-sub">User Manual</div>
+      </div>
+    </a>
+    <div class="sidebar-nav">
+      <div class="nav-section">Getting Started</div>
+      <a href="index.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Overview
+      </a>
+      <a href="workflow.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Pipeline Workflow
+      </a>
+      <div class="nav-section" style="margin-top:12px">Agents</div>
+      <a href="clerk.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+        Clerk Agent
+      </a>
+      <a href="registrar.html" class="nav-link active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+        Registrar Agent
+      </a>
+      <a href="judge.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Judge Agent
+      </a>
+      <div class="nav-section" style="margin-top:12px">Reference</div>
+      <a href="statuses.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+        Status Reference
+      </a>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-breadcrumb">
+        <a href="index.html">Manual</a>
+        <span class="sep">›</span>
+        Agents
+        <span class="sep">›</span>
+        Registrar Agent
+      </div>
+    </div>
+
+    <div class="page">
+
+      <div class="page-hero">
+        <div class="page-tag" style="background:rgba(99,102,241,0.1);color:#6366f1">
+          Stage 2 of 3
+        </div>
+        <h1 class="page-title">Registrar Agent</h1>
+        <p class="page-lead">The Registrar reads both parties' structured submissions and produces the Adversarial Matrix — a neutral, issue-by-issue map of the entire dispute. This is the foundation on which the Judge Agent reasons.</p>
+      </div>
+
+      <h2 id="role">Role and Responsibility</h2>
+      <p>The Registrar does not analyse or decide — it <em>organises</em>. Its task is to answer one question: <em>"What exactly are the parties arguing about, and on which specific points do they disagree?"</em></p>
+      <p>It reads both Clerk outputs simultaneously, identifies where the parties' positions diverge, and frames every contested point as a neutral legal issue with both stances mapped against it.</p>
+
+      <div class="callout info">
+        <span class="callout-icon">⚖️</span>
+        <div class="callout-body">The Adversarial Matrix is the most important document in the pipeline. A judge cannot decide a question that has not been properly framed. Everything the Judge says traces back to this matrix. This is why there is a mandatory human approval gate before the Judge runs.</div>
+      </div>
+
+      <h2 id="inputs">Inputs</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Input</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Petitioner's StandardizedPartySubmission</strong></td><td>Clerk Agent output (stored in database)</td></tr>
+            <tr><td><strong>Respondent's StandardizedPartySubmission</strong></td><td>Clerk Agent output (stored in database)</td></tr>
+            <tr><td><strong>LLM model</strong></td><td>Case settings</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="output">Output — Adversarial Matrix</h2>
+
+      <div class="output-block">
+        <span class="field-name">undisputed_background <span class="field-type">list of strings</span></span>
+        Facts that neither party contests — agreed events, dates, relationships, and background context. These become the narrative foundation of the court order.
+
+        <span class="field-name">framed_issues <span class="field-type">list of FramedIssue</span></span>
+        Every contested legal question, each given a sequential ID (I-1, I-2, …). Each issue contains:
+        <br><br>
+        &nbsp;&nbsp;• <strong>issue_id</strong> — sequential identifier (I-1, I-2, …)<br>
+        &nbsp;&nbsp;• <strong>neutral_issue_statement</strong> — the question phrased without favouring either party<br>
+        &nbsp;&nbsp;• <strong>petitioner_stance</strong> — arguments + citations specific to this issue<br>
+        &nbsp;&nbsp;• <strong>respondent_stance</strong> — arguments + citations specific to this issue
+
+        <span class="field-name">human_review_status <span class="field-type">"pending" | "approved" | "rejected"</span></span>
+        The gate field. The Judge will not run unless this is "approved". Only a human can change this.
+      </div>
+
+      <h2 id="reading-registrar-tab">Reading the Registrar Tab</h2>
+
+      <h3>Undisputed Background</h3>
+      <p>This section lists the agreed-upon facts that set the scene. Check:</p>
+      <ul style="margin:8px 0 16px 20px; color:var(--text-2); font-size:14px; line-height:2.2">
+        <li>Every listed fact should genuinely be uncontested — if the Respondent disputes a fact, it should not be here.</li>
+        <li>Important background context (who the parties are, what the dispute concerns, key dates) should be present.</li>
+        <li>No legal conclusions should appear here — only facts.</li>
+      </ul>
+
+      <h3>Framed Issues Accordion</h3>
+      <p>Each framed issue is a collapsible card. Click any issue to expand it. Inside, you will see two columns:</p>
+
+      <div class="cards">
+        <div class="card" style="border-left:3px solid #3b82f6">
+          <div class="card-title" style="color:#2563eb">Petitioner Stance</div>
+          <div class="card-body">The arguments the Petitioner makes on this specific issue, with the citations they invoke. This should reflect what the Petitioner actually argues — not a restatement of the issue.</div>
+        </div>
+        <div class="card" style="border-left:3px solid #ef4444">
+          <div class="card-title" style="color:#dc2626">Respondent Stance</div>
+          <div class="card-body">The Respondent's counter-arguments on the same issue. If the Respondent has not addressed an issue (e.g. it was raised only by the Petitioner), this may legitimately be empty.</div>
+        </div>
+      </div>
+
+      <h2 id="review-criteria">Review Criteria — What to Check</h2>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Completeness — are all issues captured?</div>
+            <div class="step-desc">Cross-reference the Issues Raised sections from the Clerk tab. Every issue raised by either party should appear as a framed issue in the matrix. A missing issue means no ruling on it.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Neutrality — is the framing balanced?</div>
+            <div class="step-desc">The <strong>neutral_issue_statement</strong> should not presuppose an answer. Avoid framings like "Whether the Respondent illegally refused…" — this assumes illegality. Prefer: "Whether the Respondent's refusal was lawful under…"</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Accuracy — do stances reflect the actual submissions?</div>
+            <div class="step-desc">Compare the arguments listed under each stance against the corresponding Clerk output. The Registrar should not invent arguments that neither party made.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Citations are mapped to the right issue</div>
+            <div class="step-desc">A statute cited in a fact should not appear under an issue where it is irrelevant. Check that each citation listed under a stance is actually relied upon for that issue.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">Undisputed facts are genuinely undisputed</div>
+            <div class="step-desc">If either party contests a fact in the background, it should be removed from <em>undisputed_background</em> and may need to become part of a framed issue's analysis.</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="approve-reject">Approving or Rejecting the Matrix</h2>
+
+      <div class="callout danger">
+        <span class="callout-icon">🚫</span>
+        <div class="callout-body"><strong>This is the only human control point in the pipeline.</strong> Once you click Approve, the Judge Agent will run autonomously. There is no mid-Judge pause. Make sure the matrix is correct before approving.</div>
+      </div>
+
+      <h3>When to Approve</h3>
+      <ul style="margin:8px 0 16px 20px; color:var(--text-2); font-size:14px; line-height:2.2">
+        <li>All issues are captured and correctly framed.</li>
+        <li>Each stance accurately reflects that party's actual arguments.</li>
+        <li>Undisputed facts are genuinely uncontested.</li>
+        <li>You are comfortable that the Judge can reason to a fair outcome based on this matrix alone.</li>
+      </ul>
+
+      <h3>When to Reject</h3>
+      <ul style="margin:8px 0 16px 20px; color:var(--text-2); font-size:14px; line-height:2.2">
+        <li>A material legal issue is missing entirely.</li>
+        <li>Issue framing is biased toward one party.</li>
+        <li>A party's arguments are mischaracterised or missing.</li>
+        <li>A key statute or precedent is absent from the relevant issue's citations.</li>
+        <li>The undisputed background contains contested or inaccurate facts.</li>
+      </ul>
+
+      <h3>After Rejection</h3>
+      <p>After rejecting, the case status becomes <span class="badge rejected">review_rejected</span>. To proceed:</p>
+      <ol style="margin:10px 0 16px 20px; color:var(--text-2); font-size:14px; line-height:2.2">
+        <li>Identify what was wrong — was it a Clerk extraction problem or a Registrar framing problem?</li>
+        <li>If it was a Clerk problem, fix the source (re-attach a better document or re-run Clerk after PageIndex).</li>
+        <li>Go back to the Clerk tab and click <strong>▶ Run Registrar Agent</strong> again to produce a fresh matrix.</li>
+        <li>Review again and approve or reject as appropriate.</li>
+      </ol>
+
+      <h2 id="next-step">Next Step</h2>
+      <p>Once you click <strong>✓ Approve</strong>, the <strong>▶ Run Judge Agent</strong> button appears immediately below. Click it to start the final stage of the pipeline.</p>
+
+    </div>
+
+    <div class="page-nav">
+      <a href="clerk.html" class="page-nav-link prev">Clerk Agent</a>
+      <a href="judge.html" class="page-nav-link next">Judge Agent</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

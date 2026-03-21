@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pipeline Workflow — PageIndex Manual</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sidebar-logo-text">PageIndex</div>
+        <div class="sidebar-logo-sub">User Manual</div>
+      </div>
+    </a>
+    <div class="sidebar-nav">
+      <div class="nav-section">Getting Started</div>
+      <a href="index.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Overview
+      </a>
+      <a href="workflow.html" class="nav-link active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Pipeline Workflow
+      </a>
+      <div class="nav-section" style="margin-top:12px">Agents</div>
+      <a href="clerk.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+        Clerk Agent
+      </a>
+      <a href="registrar.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+        Registrar Agent
+      </a>
+      <a href="judge.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Judge Agent
+      </a>
+      <div class="nav-section" style="margin-top:12px">Reference</div>
+      <a href="statuses.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Status Reference
+      </a>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-breadcrumb">
+        <a href="index.html">Manual</a>
+        <span class="sep">›</span>
+        Pipeline Workflow
+      </div>
+    </div>
+
+    <div class="page">
+
+      <div class="page-hero">
+        <div class="page-tag">Workflow</div>
+        <h1 class="page-title">End-to-End Pipeline Walkthrough</h1>
+        <p class="page-lead">A detailed, step-by-step guide to running a case through the full adversarial pipeline — from first upload to final exported order.</p>
+      </div>
+
+      <h2 id="before-you-start">Before You Start</h2>
+      <p>Ensure the following before creating a case:</p>
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-body">
+          <strong>Prerequisites:</strong>
+          <ul style="margin-top:6px;padding-left:18px;line-height:2">
+            <li>Both party documents are uploaded as PDFs and have a <span class="badge done"><span class="badge-dot" style="background:#16a34a"></span>done</span> status in the Documents panel.</li>
+            <li>PageIndex has processed both PDFs (the tree index has been built — this extracts the text needed by the Clerk Agent).</li>
+            <li>The backend server is running (<code>python3 server.py</code>) and an OpenAI API key is configured in <code>.env</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 id="step1">Step 1 — Create the Case</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Open the Cases panel</div>
+            <div class="step-desc">In the left sidebar, scroll past the document list to find the <strong>Cases</strong> section. Click the <code>+</code> button in the section header.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Enter a case title</div>
+            <div class="step-desc">Type a descriptive title in the format <em>"Petitioner Name v. Respondent Name"</em> — e.g. <code>Ramesh Kumar v. Municipal Corporation of Delhi</code>. Press Enter or click Create.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">The case opens in the right panel</div>
+            <div class="step-desc">The right panel switches to Case Mode and lands on the <strong>Setup</strong> tab. The PDF panel shows a Petitioner/Respondent toggle at the top.</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="step2">Step 2 — Attach Documents (Setup Tab)</h2>
+      <p>In the Setup tab you will see two slots: <strong>Petitioner</strong> and <strong>Respondent</strong>.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Attach the Petitioner's document</div>
+            <div class="step-desc">Click the dropdown under Petitioner and select the correct PDF from your uploaded documents. Only <span class="badge done"><span class="badge-dot" style="background:#16a34a"></span>done</span> documents appear.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Attach the Respondent's document</div>
+            <div class="step-desc">Repeat for the Respondent slot. The document type (Petition, Reply, Rejoinder, Affidavit, Exhibit, Other) is pre-set and can be changed.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Verify and run</div>
+            <div class="step-desc">Once both slots show a document, the <strong>▶ Run Clerk Agent</strong> button activates. Click it.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong>Important:</strong> The Clerk Agent reads the text extracted by PageIndex from the PDF (stored in the database). If a document shows <span class="badge done"><span class="badge-dot" style="background:#16a34a"></span>done</span> but PageIndex was never run on it, the Clerk will receive empty text. Always ensure both documents have been fully processed by PageIndex before running the pipeline.</div>
+      </div>
+
+      <h2 id="step3">Step 3 — Clerk Agent (Clerk Tab)</h2>
+      <p>The Clerk runs both documents simultaneously in parallel. Status transitions:</p>
+      <div class="status-flow">
+        <span class="sf-badge badge pending">pending</span>
+        <span class="sf-arrow">→</span>
+        <span class="sf-badge badge running">clerk_running</span>
+        <span class="sf-arrow">→</span>
+        <span class="sf-badge badge done">clerk_done</span>
+      </div>
+      <p>While the Clerk is running, the progress bar shows a spinning indicator. Switch to the <strong>Clerk tab</strong> to monitor progress. Once done:</p>
+      <ul style="margin:12px 0 16px 20px; color:var(--text-2); font-size:14px; line-height:2.2">
+        <li>Two columns appear — Petitioner on the left, Respondent on the right.</li>
+        <li>Each column shows <strong>Facts</strong> (with page numbers), <strong>Issues Raised</strong>, <strong>Citations</strong>, and <strong>Prayers</strong>.</li>
+        <li>Review the output. If something looks wrong, check whether PageIndex was run on the PDF.</li>
+        <li>When satisfied, click <strong>▶ Run Registrar Agent</strong> at the bottom of the tab.</li>
+      </ul>
+
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body"><strong>Reviewing Clerk output:</strong> Page numbers on each fact are clickable anchors (when the PDF is loaded in the viewer). Click the <strong>Petitioner</strong> / <strong>Respondent</strong> toggle in the PDF panel header to switch between the two source documents while reviewing the Clerk tab.</div>
+      </div>
+
+      <h2 id="step4">Step 4 — Registrar Agent (Registrar Tab)</h2>
+      <div class="status-flow">
+        <span class="sf-badge badge done">clerk_done</span>
+        <span class="sf-arrow">→</span>
+        <span class="sf-badge badge running">registrar_running</span>
+        <span class="sf-arrow">→</span>
+        <span class="sf-badge badge review">review_pending</span>
+      </div>
+      <p>The Registrar reads both clerk outputs and produces the <strong>Adversarial Matrix</strong> — the central document of the pipeline. Switch to the <strong>Registrar tab</strong> once it finishes.</p>
+
+      <h3>What to review in the Registrar tab</h3>
+      <div class="cards">
+        <div class="card">
+          <div class="card-title">Undisputed Background</div>
+          <div class="card-body">Facts that neither party contests. These become the narrative background of the order. Check for factual accuracy — a disputed fact should not appear here.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Framed Issues</div>
+          <div class="card-body">Every contested legal question, stated neutrally. Expand each issue to see both stances mapped side-by-side. Are all key issues captured? Is any issue biased toward one party?</div>
+        </div>
+      </div>
+
+      <h3>The Human Review Gate</h3>
+      <p>At the bottom of the Registrar tab you will find two buttons:</p>
+      <div class="cards">
+        <div class="card" style="border-color: rgba(34,197,94,0.3)">
+          <div class="card-title" style="color:#16a34a">✓ Approve</div>
+          <div class="card-body">The matrix accurately captures all issues with balanced stances. The Judge Agent may proceed. This action is irreversible without re-running the Registrar.</div>
+        </div>
+        <div class="card" style="border-color: rgba(239,68,68,0.3)">
+          <div class="card-title" style="color:#dc2626">✗ Reject</div>
+          <div class="card-body">The matrix is inaccurate or incomplete. The pipeline is blocked. You can re-run the Registrar after making corrections (e.g. re-running the Clerk with adjusted document types).</div>
+        </div>
+      </div>
+
+      <div class="callout danger">
+        <span class="callout-icon">🚫</span>
+        <div class="callout-body"><strong>Do not approve blindly.</strong> The Judge Agent will only decide issues that appear in the matrix. A missing issue means no ruling on it. A biased framing means a biased analysis. Take time with this step — it is the most important human checkpoint in the entire pipeline.</div>
+      </div>
+
+      <h2 id="step5">Step 5 — Judge Agent (Judge Tab)</h2>
+      <div class="status-flow">
+        <span class="sf-badge badge approved">review_approved</span>
+        <span class="sf-arrow">→</span>
+        <span class="sf-badge badge running">judge_running</span>
+        <span class="sf-arrow">→</span>
+        <span class="sf-badge badge done">judge_done</span>
+      </div>
+      <p>After approval, the <strong>▶ Run Judge Agent</strong> button appears. The Judge processes each issue <em>sequentially</em> — one LLM call per issue — then makes a final synthesis call to write the order.</p>
+      <p>Switch to the <strong>Judge tab</strong> to read the output once complete:</p>
+      <ul style="margin:12px 0 16px 20px; color:var(--text-2); font-size:14px; line-height:2.2">
+        <li><strong>Background Facts</strong> — a narrative synthesised from the undisputed background.</li>
+        <li><strong>Decisions on Issues</strong> — each issue has a collapsible card with Rule, Analysis, and Conclusion.</li>
+        <li><strong>Final Order</strong> — the ultimate disposition, highlighted in a bordered box.</li>
+      </ul>
+
+      <h2 id="export">Step 6 — Export</h2>
+      <p>Click the download icon in the top-right of the Judge tab to export the draft court order as a <code>.md</code> (Markdown) file. The exported file contains:</p>
+      <ul style="margin:12px 0 16px 20px; color:var(--text-2); font-size:14px; line-height:2.2">
+        <li>Case title as heading</li>
+        <li>Background facts section</li>
+        <li>Per-issue IRAC analysis with Rule, Analysis, and Conclusion</li>
+        <li>Final Order section</li>
+      </ul>
+      <p>The Markdown file can be pasted into Word, Google Docs, or any legal drafting tool for final editing and formatting.</p>
+
+      <div class="callout success">
+        <span class="callout-icon">✅</span>
+        <div class="callout-body"><strong>Remember:</strong> The output is a <em>draft</em>. It is intended as a well-reasoned starting point for a human drafter or reviewing judge. Always apply independent legal judgment before finalising any order.</div>
+      </div>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Problem</th><th>Likely cause</th><th>Fix</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Clerk tab shows "No output yet" after running</td>
+              <td>PageIndex was not run on the PDF, so no text was extracted</td>
+              <td>Go to Documents, select the PDF, click ▶ and wait for processing to complete. Then re-run the Clerk.</td>
+            </tr>
+            <tr>
+              <td>Clerk facts look wrong or generic</td>
+              <td>Document text was image-based or poorly OCR'd</td>
+              <td>Check the Text tab for that document. If blank, the PDF is image-only and cannot be processed without OCR preprocessing.</td>
+            </tr>
+            <tr>
+              <td>Case status stuck at <code>clerk_running</code></td>
+              <td>API key missing or LLM request timed out</td>
+              <td>Check the Activity Log in the sidebar for error messages. Verify <code>OPENAI_API_KEY</code> is set in <code>.env</code>.</td>
+            </tr>
+            <tr>
+              <td>Registrar matrix missing a key issue</td>
+              <td>The issue was not raised in either clerk output</td>
+              <td>Reject the matrix. Review the Clerk tab — if the issue is missing from clerk output, the source document may not mention it explicitly. Re-attach a more complete document and re-run Clerk.</td>
+            </tr>
+            <tr>
+              <td>Judge tab shows "Judge not run yet" after approval</td>
+              <td>Server was not restarted after code update</td>
+              <td>Restart the Flask server: <code>python3 server.py</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <div class="page-nav">
+      <a href="index.html" class="page-nav-link prev">Overview</a>
+      <a href="clerk.html" class="page-nav-link next">Clerk Agent</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

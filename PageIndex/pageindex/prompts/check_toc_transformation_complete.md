@@ -1,0 +1,16 @@
+{# variables: content, toc #}
+You are given a raw table of contents and a table of contents.
+Your job is to check if the table of contents is complete.
+
+Reply format:
+{
+    "thinking": <why do you think the cleaned table of contents is complete or not>
+    "completed": "yes" or "no"
+}
+Directly return the final JSON structure. Do not output anything else.
+
+Raw Table of contents:
+{{content}}
+
+Cleaned Table of contents:
+{{toc}}

@@ -1,0 +1,42 @@
+{
+  "doc_name": "sample_test.pdf",
+  "structure": [
+    {
+      "title": "Introduction",
+      "start_index": 1,
+      "end_index": 1,
+      "node_id": "0000",
+      "summary": "The partial document is a sample created for testing the PageIndex application, showcasing its ability to generate a tree structure. It includes an introduction, a main section with two subsections (A and B), and a conclusion."
+    },
+    {
+      "title": "Main Section",
+      "start_index": 1,
+      "end_index": 1,
+      "nodes": [
+        {
+          "title": "subsection A",
+          "start_index": 1,
+          "end_index": 1,
+          "node_id": "0002",
+          "summary": "The partial document is a sample created for testing the PageIndex application, showcasing its ability to generate a tree structure. It includes an introduction, a main section with two subsections (2.1 and 2.2), and a conclusion."
+        },
+        {
+          "title": "subsection B",
+          "start_index": 1,
+          "end_index": 1,
+          "node_id": "0003",
+          "summary": "The partial document is a sample created for testing the PageIndex application, showcasing its ability to generate a tree structure. It includes an introduction, a main section with two subsections (A and B), and a conclusion."
+        }
+      ],
+      "node_id": "0001",
+      "summary": "The partial document is a sample created for testing the PageIndex application, showcasing its ability to generate a tree structure. It includes an introduction, a main section with two subsections (A and B), and a conclusion."
+    },
+    {
+      "title": "Conclusion",
+      "start_index": 1,
+      "end_index": 1,
+      "node_id": "0004",
+      "summary": "The partial document is a sample created for testing the PageIndex application, showcasing its ability to generate a tree structure. It includes an introduction, a main section with two subsections (A and B), and a conclusion."
+    }
+  ]
+}

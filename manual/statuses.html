@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Status Reference — PageIndex Manual</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sidebar-logo-text">PageIndex</div>
+        <div class="sidebar-logo-sub">User Manual</div>
+      </div>
+    </a>
+    <div class="sidebar-nav">
+      <div class="nav-section">Getting Started</div>
+      <a href="index.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Overview
+      </a>
+      <a href="workflow.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Pipeline Workflow
+      </a>
+      <div class="nav-section" style="margin-top:12px">Agents</div>
+      <a href="clerk.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+        Clerk Agent
+      </a>
+      <a href="registrar.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+        Registrar Agent
+      </a>
+      <a href="judge.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Judge Agent
+      </a>
+      <div class="nav-section" style="margin-top:12px">Reference</div>
+      <a href="statuses.html" class="nav-link active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Status Reference
+      </a>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-breadcrumb">
+        <a href="index.html">Manual</a>
+        <span class="sep">›</span>
+        Status Reference
+      </div>
+    </div>
+
+    <div class="page">
+
+      <div class="page-hero">
+        <div class="page-tag">Reference</div>
+        <h1 class="page-title">Status Reference</h1>
+        <p class="page-lead">A complete reference for every status value in the pipeline — what each one means, what triggered it, and what action (if any) is required from you.</p>
+      </div>
+
+      <h2 id="case-statuses">Case Statuses</h2>
+      <p>Each case moves through a defined set of statuses as it progresses through the pipeline. The current status is shown as a colour-coded dot next to the case in the left panel.</p>
+
+      <!-- Full state machine flow -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:24px;margin:24px 0;font-size:13px;line-height:2.5;color:var(--text-2)">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px">
+          <span class="badge pending">pending</span>
+          <span style="color:var(--text-3)">→ run Clerk →</span>
+          <span class="badge running">clerk_running</span>
+          <span style="color:var(--text-3)">→ Clerk done →</span>
+          <span class="badge done">clerk_done</span>
+          <span style="color:var(--text-3)">→ run Registrar →</span>
+          <span class="badge running">registrar_running</span>
+          <span style="color:var(--text-3)">→ Registrar done →</span>
+          <span class="badge review">review_pending</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px">
+          <span style="color:var(--text-3);padding-left:32px">↓ Approve</span>
+          <span class="badge approved">review_approved</span>
+          <span style="color:var(--text-3)">→ run Judge →</span>
+          <span class="badge running">judge_running</span>
+          <span style="color:var(--text-3)">→ Judge done →</span>
+          <span class="badge done" style="background:rgba(34,197,94,0.15);color:#15803d">judge_done ✓</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px">
+          <span style="color:var(--text-3);padding-left:32px">↓ Reject</span>
+          <span class="badge rejected">review_rejected</span>
+          <span style="color:var(--text-3)">→ re-run Registrar</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px">
+          <span style="color:var(--text-3);padding-left:32px">Any stage failure →</span>
+          <span class="badge error">error</span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Status</th><th>Dot colour</th><th>Meaning</th><th>What to do</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="badge pending">pending</span></td>
+              <td><span style="color:#94a3b8">● grey</span></td>
+              <td>Case created, no agents have run. Documents may not yet be attached.</td>
+              <td>Go to Setup tab, attach Petitioner and Respondent documents, click ▶ Run Clerk Agent.</td>
+            </tr>
+            <tr>
+              <td><span class="badge running">clerk_running</span></td>
+              <td><span style="color:#f59e0b">● amber (pulse)</span></td>
+              <td>Clerk Agent is currently processing both documents in parallel. LLM calls in progress.</td>
+              <td>Wait. The Clerk tab will update automatically when done. Do not navigate away from the case.</td>
+            </tr>
+            <tr>
+              <td><span class="badge done">clerk_done</span></td>
+              <td><span style="color:#a3e635">● lime</span></td>
+              <td>Both Clerk outputs are complete and saved. Registrar has not run yet.</td>
+              <td>Review the Clerk tab output. If satisfactory, click ▶ Run Registrar Agent.</td>
+            </tr>
+            <tr>
+              <td><span class="badge running">registrar_running</span></td>
+              <td><span style="color:#f59e0b">● amber (pulse)</span></td>
+              <td>Registrar Agent is building the Adversarial Matrix. Single LLM call in progress.</td>
+              <td>Wait. Registrar tab will populate when done.</td>
+            </tr>
+            <tr>
+              <td><span class="badge review">review_pending</span></td>
+              <td><span style="color:#3b82f6">● blue</span></td>
+              <td>The Adversarial Matrix is complete and awaiting human review. <strong>Action required.</strong></td>
+              <td>Open the Registrar tab, review the matrix carefully, then click ✓ Approve or ✗ Reject.</td>
+            </tr>
+            <tr>
+              <td><span class="badge approved">review_approved</span></td>
+              <td><span style="color:#a3e635">● lime</span></td>
+              <td>Human has approved the matrix. Judge Agent may now run.</td>
+              <td>Click ▶ Run Judge Agent (visible in the Registrar tab).</td>
+            </tr>
+            <tr>
+              <td><span class="badge rejected">review_rejected</span></td>
+              <td><span style="color:#ef4444">● red</span></td>
+              <td>Human has rejected the matrix. Pipeline is blocked until Registrar is re-run.</td>
+              <td>Investigate why the matrix was wrong (Clerk issue or Registrar framing). Re-run Registrar Agent from the Clerk tab.</td>
+            </tr>
+            <tr>
+              <td><span class="badge running">judge_running</span></td>
+              <td><span style="color:#f59e0b">● amber (pulse)</span></td>
+              <td>Judge Agent is deliberating. Multiple sequential LLM calls in progress (one per issue + final order).</td>
+              <td>Wait. This is the longest stage. The Judge tab will populate when done. Processing time scales with number of issues.</td>
+            </tr>
+            <tr>
+              <td><span class="badge done" style="background:rgba(34,197,94,0.15);color:#15803d">judge_done</span></td>
+              <td><span style="color:#22c55e">● green</span></td>
+              <td>Pipeline complete. The Draft Court Order is available in the Judge tab.</td>
+              <td>Review the Judge tab. Export the order as Markdown using the download button.</td>
+            </tr>
+            <tr>
+              <td><span class="badge error">error</span></td>
+              <td><span style="color:#ef4444">● red</span></td>
+              <td>An agent failed mid-run. The error message is shown in the Setup tab.</td>
+              <td>Read the error message in the Setup tab. Check the Activity Log for details. Fix the underlying cause and re-run the failed stage.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="doc-statuses">Document Statuses</h2>
+      <p>Individual documents attached to a case also have their own clerk processing status:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge pending">pending</span></td><td>Document attached to case but Clerk has not run on it yet.</td></tr>
+            <tr><td><span class="badge running">running</span></td><td>Clerk is currently processing this specific document.</td></tr>
+            <tr><td><span class="badge done">done</span></td><td>Clerk extraction complete for this document.</td></tr>
+            <tr><td><span class="badge error">error</span></td><td>Clerk failed on this document. Check the Activity Log.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="transition-rules">Transition Rules</h2>
+      <p>Not every status transition is allowed. The following rules are enforced by the API:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Action</th><th>Allowed from status</th><th>Blocked if</th></tr></thead>
+          <tbody>
+            <tr><td>Run Clerk Agent</td><td>Any status (re-run allowed)</td><td>Either document slot is empty in Setup</td></tr>
+            <tr><td>Run Registrar Agent</td><td><span class="badge done">clerk_done</span> only</td><td>Clerk has not completed on both documents</td></tr>
+            <tr><td>Approve / Reject matrix</td><td><span class="badge review">review_pending</span></td><td>Matrix has already been approved or rejected</td></tr>
+            <tr><td>Run Judge Agent</td><td><span class="badge approved">review_approved</span> only</td><td>Any other status — matrix must be explicitly approved</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="sidebar-indicators">Sidebar Status Indicators</h2>
+      <p>In the left panel Cases section, each case shows a small coloured dot:</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
+          <span style="width:10px;height:10px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>
+          <span style="font-size:13px;color:var(--text-2)">Grey — <strong>pending</strong> / not started</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
+          <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0"></span>
+          <span style="font-size:13px;color:var(--text-2)">Amber (pulsing) — <strong>agent running</strong></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
+          <span style="width:10px;height:10px;border-radius:50%;background:#3b82f6;flex-shrink:0"></span>
+          <span style="font-size:13px;color:var(--text-2)">Blue — <strong>review_pending</strong> (needs your action)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
+          <span style="width:10px;height:10px;border-radius:50%;background:#a3e635;flex-shrink:0"></span>
+          <span style="font-size:13px;color:var(--text-2)">Lime — <strong>clerk_done</strong> / <strong>review_approved</strong></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
+          <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>
+          <span style="font-size:13px;color:var(--text-2)">Green — <strong>judge_done</strong> (complete)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
+          <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0"></span>
+          <span style="font-size:13px;color:var(--text-2)">Red — <strong>error</strong> / <strong>review_rejected</strong></span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="page-nav">
+      <a href="judge.html" class="page-nav-link prev">Judge Agent</a>
+      <a href="index.html" class="page-nav-link next">Back to Overview</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

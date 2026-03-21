@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clerk Agent — PageIndex Manual</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sidebar-logo-text">PageIndex</div>
+        <div class="sidebar-logo-sub">User Manual</div>
+      </div>
+    </a>
+    <div class="sidebar-nav">
+      <div class="nav-section">Getting Started</div>
+      <a href="index.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Overview
+      </a>
+      <a href="workflow.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Pipeline Workflow
+      </a>
+      <div class="nav-section" style="margin-top:12px">Agents</div>
+      <a href="clerk.html" class="nav-link active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+        Clerk Agent
+      </a>
+      <a href="registrar.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+        Registrar Agent
+      </a>
+      <a href="judge.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Judge Agent
+      </a>
+      <div class="nav-section" style="margin-top:12px">Reference</div>
+      <a href="statuses.html" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Status Reference
+      </a>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-breadcrumb">
+        <a href="index.html">Manual</a>
+        <span class="sep">›</span>
+        <a href="clerk.html">Agents</a>
+        <span class="sep">›</span>
+        Clerk Agent
+      </div>
+    </div>
+
+    <div class="page">
+
+      <div class="page-hero">
+        <div class="page-tag" style="background:rgba(59,130,246,0.1);color:#2563eb">
+          Stage 1 of 3
+        </div>
+        <h1 class="page-title">Clerk Agent</h1>
+        <p class="page-lead">The Clerk is the first agent in the pipeline. It reads each party's legal document and extracts a complete, structured summary — facts, legal issues, citations, and prayers — ready for adversarial comparison.</p>
+      </div>
+
+      <h2 id="role">Role and Responsibility</h2>
+      <p>The Clerk's job is purely <em>extraction</em> — it does not interpret, compare, or argue. It reads one document at a time and produces a <strong>StandardizedPartySubmission</strong>: a consistent data structure that every downstream agent expects.</p>
+      <p>Both the Petitioner's and Respondent's documents are processed <strong>in parallel</strong> by separate Clerk calls — cutting the processing time roughly in half.</p>
+
+      <div class="callout info">
+        <span class="callout-icon">🗂️</span>
+        <div class="callout-body">Think of the Clerk as a highly trained court reader: it goes through the document page by page, notes every factual statement with its page reference, records every law and case cited, identifies every legal issue the party raises, and lists what relief they are asking for.</div>
+      </div>
+
+      <h2 id="inputs">Inputs</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Input</th><th>Source</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Document text</strong></td><td>PageIndex database</td><td>All pages concatenated with page-number markers. Must be non-empty — run PageIndex on the PDF first.</td></tr>
+            <tr><td><strong>Party role</strong></td><td>Setup tab dropdown</td><td>"Petitioner" or "Respondent"</td></tr>
+            <tr><td><strong>Document type</strong></td><td>Setup tab dropdown</td><td>Petition / Reply / Rejoinder / Affidavit / Exhibit / Other</td></tr>
+            <tr><td><strong>LLM model</strong></td><td>Case settings</td><td>Default: <code>gpt-4o-2024-11-20</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="output">Output — StandardizedPartySubmission</h2>
+      <p>The Clerk produces a structured JSON object saved to the database. Here is what each field means:</p>
+
+      <div class="output-block">
+        <span class="field-name">extracted_facts <span class="field-type">list of {statement, page_index, verified}</span></span>
+        Each material factual claim made by the party, anchored to the page it appears on. <code>verified: true</code> means the statement text was found verbatim or near-verbatim in the source.
+
+        <span class="field-name">issues_raised <span class="field-type">list of strings</span></span>
+        Every distinct legal issue explicitly raised by this party, in their own framing. These feed the Registrar's issue-comparison step.
+
+        <span class="field-name">cited_laws_and_cases <span class="field-type">list of {citation, page_index, verified}</span></span>
+        All statutes, sections, rules, and case citations mentioned. Exact citation string as written in the document, with source page.
+
+        <span class="field-name">prayers <span class="field-type">list of strings</span></span>
+        The specific reliefs or remedies this party asks the court to grant. Extracted verbatim where possible.
+      </div>
+
+      <h2 id="reading-clerk-tab">Reading the Clerk Tab</h2>
+      <p>The Clerk tab shows two columns side by side — Petitioner (blue header) and Respondent (red header). Each column has four collapsible sections:</p>
+
+      <div class="cards">
+        <div class="card" style="border-top:3px solid #3b82f6">
+          <div class="card-title">Facts</div>
+          <div class="card-body">Each fact shows a page tag (e.g. <code>p.3</code>) on the left. These page numbers correspond to the source PDF. Use the party toggle in the PDF viewer to jump to that page and verify the extraction.</div>
+        </div>
+        <div class="card" style="border-top:3px solid #8b5cf6">
+          <div class="card-title">Issues Raised</div>
+          <div class="card-body">The legal questions this party says are at stake. Compare these between columns — overlapping issues become "framed issues" in the Registrar; non-overlapping ones become single-party issues.</div>
+        </div>
+        <div class="card" style="border-top:3px solid #f59e0b">
+          <div class="card-title">Citations</div>
+          <div class="card-body">Every statute and case cited. A citation without a page tag means it was mentioned but the Clerk could not pin it to a page. Check manually if the citation is important.</div>
+        </div>
+        <div class="card" style="border-top:3px solid #22c55e">
+          <div class="card-title">Prayers</div>
+          <div class="card-body">The relief sought by each party. These are important — they define the scope of what the Judge can award and should reflect the actual pleadings exactly.</div>
+        </div>
+      </div>
+
+      <h2 id="quality-check">Quality Checklist</h2>
+      <p>Before proceeding to the Registrar, verify the Clerk output against these criteria:</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">✓</div>
+          <div class="step-body">
+            <div class="step-title">Core facts are captured</div>
+            <div class="step-desc">All key factual events — dates, names, amounts, statutory provisions involved — appear in the Facts list. If a critical fact is missing, the document text may be incomplete.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">✓</div>
+          <div class="step-body">
+            <div class="step-title">Issues match the document's arguments</div>
+            <div class="step-desc">The issues listed should match what the party actually argues, not a generic restatement. If issues appear vague or invented, the document text did not explicitly raise them.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">✓</div>
+          <div class="step-body">
+            <div class="step-title">Key citations are present</div>
+            <div class="step-desc">Every statute and important case cited in the filing should appear. Cross-check against the document in the PDF viewer.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">✓</div>
+          <div class="step-body">
+            <div class="step-title">Prayers are specific</div>
+            <div class="step-desc">Each prayer should be a distinct, specific relief — not a generic "any other order". If prayers appear vague, check the filing's Prayer/Relief section.</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="re-running">Re-running the Clerk</h2>
+      <p>If the output is unsatisfactory, you can re-run the Clerk by going back to the <strong>Setup tab</strong> and clicking <strong>▶ Run Clerk Agent</strong> again. This overwrites the previous output.</p>
+      <p>Common reasons to re-run:</p>
+      <ul style="margin:12px 0 16px 20px; color:var(--text-2); font-size:14px; line-height:2.2">
+        <li>You attached the wrong document — detach and re-attach the correct one first.</li>
+        <li>The document type was wrong (e.g. set as "Petition" when it is a "Rejoinder") — change the type and re-run.</li>
+        <li>PageIndex was not previously run on the PDF — run PageIndex, then re-run the Clerk.</li>
+      </ul>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong>Re-running Clerk resets the pipeline.</strong> If the Registrar has already run, re-running the Clerk will overwrite the clerk output but will not automatically re-run the Registrar. You must manually trigger the Registrar again after a Clerk re-run.</div>
+      </div>
+
+      <h2 id="next-step">Next Step</h2>
+      <p>Once both columns show complete output and you are satisfied with the quality, click <strong>▶ Run Registrar Agent</strong> at the bottom of the Clerk tab. The pipeline will advance to the Registrar stage.</p>
+
+    </div>
+
+    <div class="page-nav">
+      <a href="workflow.html" class="page-nav-link prev">Pipeline Workflow</a>
+      <a href="registrar.html" class="page-nav-link next">Registrar Agent</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

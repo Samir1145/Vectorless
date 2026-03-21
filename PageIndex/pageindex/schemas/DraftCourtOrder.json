@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DraftCourtOrder",
+  "description": "Output of the Judge Agent. A reasoned draft order produced by iterating through each framed issue in the AdversarialMatrix using the IRAC method (Issue, Rule, Application, Conclusion).",
+  "type": "object",
+  "properties": {
+    "case_title": { "type": "string" },
+    "background_facts": {
+      "type": "string",
+      "description": "A cohesive narrative synthesized from the undisputed_background array."
+    },
+    "reasoned_decisions": {
+      "type": "array",
+      "description": "One entry per framed_issue from the AdversarialMatrix. Judge iterates sequentially — one LLM call per issue_id.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_id": {
+            "type": "string",
+            "description": "Must match an issue_id from the AdversarialMatrix."
+          },
+          "issue_statement": { "type": "string" },
+          "rule": {
+            "type": "string",
+            "description": "IRAC — Rule: the applicable law, statute, or precedent."
+          },
+          "analysis": {
+            "type": "string",
+            "description": "IRAC — Application: reasoning weighing petitioner vs respondent stances and citations."
+          },
+          "conclusion": {
+            "type": "string",
+            "description": "IRAC — Conclusion: specific ruling on this individual issue e.g. 'Issue decided in favour of Petitioner'."
+          }
+        },
+        "required": ["issue_id", "issue_statement", "rule", "analysis", "conclusion"]
+      }
+    },
+    "final_order": {
+      "type": "string",
+      "description": "Ultimate disposition of the case synthesized from all conclusions e.g. 'The petition is allowed / dismissed'."
+    }
+  },
+  "required": ["case_title", "background_facts", "reasoned_decisions", "final_order"]
+}
