@@ -1,0 +1,25 @@
+name: Verifier Agent
+stage: 2
+description: >
+  Cross-checks every fact and citation in the Clerk's extraction against the
+  original document text. Produces a confidence score and flags any problems.
+
+model_tier: fast      # gpt-4o-mini — structured cross-referencing, not deep reasoning
+temperature: 0
+chains_from: Clerk Agent   # runs immediately after Clerk in the same thread
+chains_to: Registrar Agent # audit is passed as optional context to the Registrar
+
+input:
+  party_role:    '"Petitioner" or "Respondent"'
+  document_type: 'e.g. "Petition", "Affidavit"'
+  submission:    StandardizedPartySubmission (Clerk output — what to audit)
+  document_text: original document text (source of truth)
+
+output: VerifiedPartySubmission
+output_schema: schema.py
+
+files:
+  system_prompt: skills.md
+  task_prompt:   task.md
+  schema:        schema.py
+  code:          agent.py

@@ -1,0 +1,23 @@
+name: Clerk Agent
+stage: 1
+description: >
+  Reads one party's court document and extracts a structured record of
+  their factual claims, legal issues, citations, and prayers.
+
+model_tier: fast          # gpt-4o-mini — extraction is straightforward
+temperature: 0            # fully deterministic — same document always gives same output
+chains_to: Verifier Agent # immediately after Clerk finishes, Verifier audits in the same thread
+
+input:
+  party_role:    '"Petitioner" or "Respondent"'
+  document_type: 'e.g. "Petition", "Affidavit", "Reply"'
+  document_text: full plain-text content of the PDF document
+
+output: StandardizedPartySubmission
+output_schema: schema.py
+
+files:
+  system_prompt: skills.md       # who the agent is and what it knows
+  task_prompt:   task.md         # the specific instructions and data
+  schema:        schema.py       # Pydantic model the LLM must output
+  code:          agent.py        # Python function run_clerk()

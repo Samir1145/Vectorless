@@ -1,0 +1,28 @@
+name: Procedural Agent
+stage: 4
+description: >
+  Screens the AdversarialMatrix for procedural bars before substantive adjudication.
+  Checks jurisdiction, limitation, and standing at case level, and flags each
+  issue individually. Only issues_to_proceed reach the Devil's Advocate and Judge.
+
+model_tier: balanced      # gpt-4o — needs familiarity with procedural law
+temperature: 0
+chains_from: Registrar Agent
+chains_to: Devil's Advocate Agent
+
+input:
+  case_title: human-readable case name
+  matrix:     AdversarialMatrix (Registrar output)
+
+output: ProceduralAnalysis
+output_schema: schema.py
+
+special_behaviour:
+  - issues NOT in issues_to_proceed are silently dropped from all downstream agents
+  - severity levels: fatal (cannot be cured) | curable (can be fixed) | advisory (note only)
+
+files:
+  system_prompt: skills.md
+  task_prompt:   task.md
+  schema:        schema.py
+  code:          agent.py

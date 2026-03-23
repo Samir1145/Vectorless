@@ -1,0 +1,31 @@
+name: Registrar Agent
+stage: 3
+description: >
+  Reads both parties' submissions side by side and produces the AdversarialMatrix —
+  a neutral, issue-by-issue map of the dispute with each party's arguments
+  and citations in parallel columns.
+
+model_tier: balanced      # gpt-4o — neutral synthesis requires more than simple extraction
+temperature: 0
+chains_from: Verifier Agent
+chains_to: Procedural Agent
+
+input:
+  petitioner_submission: StandardizedPartySubmission (Clerk output)
+  respondent_submission:  StandardizedPartySubmission (Clerk output)
+  petitioner_audit:       VerifiedPartySubmission (optional — Verifier output)
+  respondent_audit:       VerifiedPartySubmission (optional — Verifier output)
+  rejection_feedback:     string (optional — injected if a prior matrix was rejected)
+
+output: AdversarialMatrix
+output_schema: schema.py
+
+special_behaviour:
+  - human_review_status is always reset to "pending" after generation
+  - rejection_feedback is injected as a bolded IMPORTANT directive in the prompt
+
+files:
+  system_prompt: skills.md
+  task_prompt:   task.md
+  schema:        schema.py
+  code:          agent.py

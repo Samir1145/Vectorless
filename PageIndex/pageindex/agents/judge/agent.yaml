@@ -1,0 +1,39 @@
+name: Judge Agent
+stage: 6
+description: >
+  Adjudicates each procedurally cleared issue using the IRAC method
+  (Issue, Rule, Application, Conclusion), then synthesises all decisions
+  into a final order paragraph.
+
+model_tier: powerful      # gpt-4o — deep reasoning over conflicting precedents
+temperature: 0            # fully deterministic — judicial reasoning must be reproducible
+chains_from: "Human review gate (review_approved)"
+chains_to: Drafter Agent
+
+two_phase_execution:
+  phase_1: task_irac.md         # one call per issue in issues_to_proceed (sequential)
+  phase_2: task_final_order.md  # one call to synthesise all decisions
+
+input_phase_1:
+  case_title:       human-readable case name
+  background_facts: undisputed facts narrative from AdversarialMatrix
+  issue:            single FramedIssue from issues_to_proceed
+
+input_phase_2:
+  case_title:          human-readable case name
+  background_facts:    undisputed facts narrative
+  reasoned_decisions:  list[ReasonedDecision] from phase 1
+
+output: DraftCourtOrder
+output_schema: schema.py
+
+special_behaviour:
+  - issues are processed sequentially, not in parallel
+  - only issues_to_proceed are adjudicated (procedural sifting respected)
+
+files:
+  system_prompt:    skills.md
+  task_prompt_irac: task_irac.md
+  task_prompt_final: task_final_order.md
+  schema:           schema.py
+  code:             agent.py

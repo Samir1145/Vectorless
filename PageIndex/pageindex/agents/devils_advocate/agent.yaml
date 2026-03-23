@@ -1,0 +1,29 @@
+name: Devil's Advocate Agent
+stage: 5
+description: >
+  Stress-tests every procedurally cleared issue by finding the strongest
+  counter-argument against each party's stance. Gives the human reviewer
+  a vulnerability map before they decide whether to approve the matrix.
+
+model_tier: powerful      # gpt-4o — adversarial reasoning requires depth
+temperature: 0.4          # intentionally stochastic — creative counter-arguments benefit from variation
+chains_from: Procedural Agent
+chains_to: "*** HUMAN REVIEW GATE ***  →  Judge Agent"
+
+input:
+  case_title:            human-readable case name
+  issues_to_adjudicate:  list[FramedIssue] — only issues_to_proceed from ProceduralAnalysis
+
+output: StressTestedMatrix
+output_schema: schema.py
+
+special_behaviour:
+  - temperature is 0.4, not 0 — this is intentional for adversarial creativity
+  - after this stage, execution pauses for human review
+  - rejection reason is stored and fed back to registrar/ on re-run
+
+files:
+  system_prompt: skills.md
+  task_prompt:   task.md
+  schema:        schema.py
+  code:          agent.py

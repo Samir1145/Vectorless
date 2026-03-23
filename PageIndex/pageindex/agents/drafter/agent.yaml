@@ -1,0 +1,31 @@
+name: Drafting Agent
+stage: 7
+description: >
+  Converts the Judge's structured DraftCourtOrder into jurisdiction-appropriate
+  formal court order prose. Handles Indian High Court, Supreme Court, and
+  District Court formatting conventions. Terminal stage — status → complete.
+
+model_tier: fast          # gpt-4o-mini — well-defined formatting task
+temperature: 0.2          # slight variation for more natural-sounding prose
+chains_from: Judge Agent
+chains_to: complete       # this is the final stage
+
+input:
+  case_title:          human-readable case name
+  forum:               court name/location (e.g. "High Court of Delhi at New Delhi")
+  jurisdiction_style:  '"indian_high_court" | "supreme_court" | "district_court" | "custom"'
+  draft_order:         DraftCourtOrder (Judge output — what to format)
+
+output: FormalCourtOrder
+output_schema: schema.py
+
+special_behaviour:
+  - does NOT add or change any legal conclusions — formatting only
+  - uses placeholder conventions for missing info (case number, judge name, amounts)
+  - frontend Drafter tab has an export button for the output
+
+files:
+  system_prompt: skills.md
+  task_prompt:   task.md
+  schema:        schema.py
+  code:          agent.py

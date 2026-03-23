@@ -136,10 +136,16 @@ CREATE TABLE IF NOT EXISTS cases (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     title        TEXT NOT NULL,
     status       TEXT NOT NULL DEFAULT 'pending',
-    -- status values: pending | clerk_running | clerk_done
+    -- status values: pending
+    --                clerk_running | clerk_done
+    --                verifier_running | verifier_done
     --                registrar_running | registrar_done
+    --                procedural_running | procedural_done
+    --                devils_advocate_running
     --                review_pending | review_approved | review_rejected
-    --                judge_running | judge_done | error
+    --                judge_running | judge_done
+    --                drafter_running | complete
+    --                error
     error_message TEXT,
     model        TEXT NOT NULL DEFAULT 'gpt-4o-2024-11-20',
     created_at   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
@@ -147,29 +153,76 @@ CREATE TABLE IF NOT EXISTS cases (
 );
 
 CREATE TABLE IF NOT EXISTS case_documents (
-    id           INTEGER PRIMARY KEY AUTOINCREMENT,
-    case_id      INTEGER NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
-    doc_id       INTEGER REFERENCES documents(id) ON DELETE SET NULL,
-    party_role   TEXT NOT NULL,   -- 'Petitioner' or 'Respondent'
-    document_type TEXT NOT NULL DEFAULT 'Petition',
-    -- clerk output stored as JSON blob
-    clerk_output TEXT,
-    clerk_status TEXT NOT NULL DEFAULT 'pending',  -- pending | running | done | error
-    created_at   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    case_id         INTEGER NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
+    doc_id          INTEGER REFERENCES documents(id) ON DELETE SET NULL,
+    party_role      TEXT NOT NULL,   -- 'Petitioner' or 'Respondent'
+    document_type   TEXT NOT NULL DEFAULT 'Petition',
+    -- Clerk output stored as JSON blob (StandardizedPartySubmission)
+    clerk_output    TEXT,
+    clerk_status    TEXT NOT NULL DEFAULT 'pending',    -- pending | running | done | error
+    -- Verifier output stored as JSON blob (VerifiedPartySubmission audit)
+    verifier_output TEXT,
+    verifier_status TEXT NOT NULL DEFAULT 'pending',   -- pending | running | done | error
+    created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_case_documents_case ON case_documents(case_id);
 
 CREATE TABLE IF NOT EXISTS case_results (
-    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-    case_id             INTEGER NOT NULL UNIQUE REFERENCES cases(id) ON DELETE CASCADE,
-    adversarial_matrix  TEXT,   -- JSON: AdversarialMatrix
-    draft_court_order   TEXT,   -- JSON: DraftCourtOrder
-    human_review_status TEXT NOT NULL DEFAULT 'pending',  -- pending | approved | rejected
-    created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-    updated_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+    id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+    case_id               INTEGER NOT NULL UNIQUE REFERENCES cases(id) ON DELETE CASCADE,
+    adversarial_matrix    TEXT,   -- JSON: AdversarialMatrix  (Registrar output)
+    sifted_matrix         TEXT,   -- JSON: {adversarial_matrix, procedural_analysis}
+    stress_tested_matrix  TEXT,   -- JSON: {sifted_matrix, stress_tested_matrix}
+    draft_court_order     TEXT,   -- JSON: DraftCourtOrder    (Judge output)
+    formal_court_order    TEXT,   -- JSON: FormalCourtOrder   (Drafting Agent output)
+    human_review_status   TEXT NOT NULL DEFAULT 'pending',  -- pending | approved | rejected
+    created_at            TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    updated_at            TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 """
+
+
+# ---------------------------------------------------------------------------
+# Schema migrations (add columns to existing tables without data loss)
+# Each statement is attempted once; OperationalError means column already exists.
+# ---------------------------------------------------------------------------
+
+_MIGRATIONS = [
+    # Verifier columns on case_documents
+    "ALTER TABLE case_documents ADD COLUMN verifier_output TEXT",
+    "ALTER TABLE case_documents ADD COLUMN verifier_status TEXT NOT NULL DEFAULT 'pending'",
+    # Soft-delete support on cases
+    "ALTER TABLE cases ADD COLUMN archived INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE cases ADD COLUMN archived_at TEXT",
+    # New result columns on case_results
+    "ALTER TABLE case_results ADD COLUMN sifted_matrix TEXT",
+    "ALTER TABLE case_results ADD COLUMN stress_tested_matrix TEXT",
+    "ALTER TABLE case_results ADD COLUMN formal_court_order TEXT",
+    # Rejection feedback — stores the human reviewer's reason for rejecting the matrix
+    "ALTER TABLE case_results ADD COLUMN rejection_reason TEXT",
+    # Citation Auditor (stage 2.5) — external case law verification report
+    "ALTER TABLE case_results ADD COLUMN citation_audit TEXT",
+    # Party display names — customisable per-case labels replacing "Petitioner"/"Respondent"
+    "ALTER TABLE cases ADD COLUMN petitioner_name TEXT NOT NULL DEFAULT 'Petitioner'",
+    "ALTER TABLE cases ADD COLUMN respondent_name TEXT NOT NULL DEFAULT 'Respondent'",
+    # Note Builder Agent — source/type/severity columns on annotations
+    "ALTER TABLE annotations ADD COLUMN source TEXT NOT NULL DEFAULT 'human'",
+    "ALTER TABLE annotations ADD COLUMN note_type TEXT",
+    "ALTER TABLE annotations ADD COLUMN severity TEXT",
+    # Note Builder status on documents (pending | generating | done | failed)
+    "ALTER TABLE documents ADD COLUMN notes_status TEXT NOT NULL DEFAULT 'pending'",
+]
+
+
+def _run_migrations(conn):
+    for sql in _MIGRATIONS:
+        try:
+            conn.execute(sql)
+            log.debug("Migration applied: %s", sql[:60])
+        except sqlite3.OperationalError:
+            pass  # Column already exists — idempotent
 
 
 def init_db():
@@ -180,6 +233,7 @@ def init_db():
     try:
         conn.executescript(SCHEMA)
         conn.execute("PRAGMA journal_mode=WAL;")
+        _run_migrations(conn)
         conn.commit()
         log.info("Database initialized successfully | WAL mode enabled")
     finally:
@@ -290,23 +344,23 @@ def delete_folder(folder_id):
 # Documents
 # ---------------------------------------------------------------------------
 
-def create_document(folder_id, original_filename, stored_filename, file_path, file_size):
+def create_document(folder_id, original_filename, stored_filename, file_path, file_size, page_count=None):
     log.info(
-        "Creating document record | folder_id=%s | filename=%r | stored=%r | size=%s bytes",
-        folder_id, original_filename, stored_filename, file_size
+        "Creating document record | folder_id=%s | filename=%r | stored=%r | size=%s bytes | pages=%s",
+        folder_id, original_filename, stored_filename, file_size, page_count
     )
     with get_db() as conn:
         cur = conn.execute(
             """INSERT INTO documents
-               (folder_id, original_filename, stored_filename, file_path, file_size, status)
-               VALUES (?, ?, ?, ?, ?, 'pending')""",
-            (folder_id, original_filename, stored_filename, file_path, file_size)
+               (folder_id, original_filename, stored_filename, file_path, file_size, page_count, status)
+               VALUES (?, ?, ?, ?, ?, ?, 'pending')""",
+            (folder_id, original_filename, stored_filename, file_path, file_size, page_count)
         )
         row = conn.execute("SELECT * FROM documents WHERE id = ?", (cur.lastrowid,)).fetchone()
         result = dict(row)
     log.info(
-        "Document record created | doc_id=%s | filename=%r | status=pending",
-        result['id'], original_filename
+        "Document record created | doc_id=%s | filename=%r | pages=%s | status=pending",
+        result['id'], original_filename, page_count
     )
     return result
 
@@ -599,39 +653,83 @@ def save_page_texts(doc_id: int, page_texts: list):
 # Annotations
 # ---------------------------------------------------------------------------
 
-def save_annotation(doc_id: int, node_id: str, anchor_page: int, anchor_title: str, anchor_path: str, body: str):
+def save_annotation(doc_id: int, node_id: str, anchor_page: int, anchor_title: str, anchor_path: str, body: str,
+                    source: str = 'human', note_type: str = None, severity: str = None):
     """Upsert an annotation keyed by (doc_id, node_id). Returns the saved annotation dict.
 
     node_id is the PageIndex-assigned string (unique per node within a document).
     anchor_page / anchor_title are stored solely for re-anchoring after re-processing.
+    source: 'human' | 'agent'
+    note_type: 'summary' | 'flag' | 'quote' | 'cross_ref' | None
+    severity: 'low' | 'medium' | 'high' | None
     """
-    log.info("Saving annotation | doc_id=%s | node_id=%s | anchor_page=%s", doc_id, node_id, anchor_page)
+    log.info("Saving annotation | doc_id=%s | node_id=%s | anchor_page=%s | source=%s", doc_id, node_id, anchor_page, source)
     with get_db() as conn:
         row = conn.execute(
-            "SELECT id FROM annotations WHERE doc_id = ? AND node_id = ?",
-            (doc_id, node_id)
+            "SELECT id FROM annotations WHERE doc_id = ? AND node_id = ? AND source = ?",
+            (doc_id, node_id, source)
         ).fetchone()
         if row:
             conn.execute(
                 """UPDATE annotations
                    SET body = ?, anchor_page = ?, anchor_title = ?, anchor_path = ?,
+                       note_type = ?, severity = ?,
                        updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
                    WHERE id = ?""",
-                (body, anchor_page, anchor_title, anchor_path, row['id'])
+                (body, anchor_page, anchor_title, anchor_path, note_type, severity, row['id'])
             )
             ann_id = row['id']
         else:
             cur = conn.execute(
-                """INSERT INTO annotations (doc_id, node_id, anchor_page, anchor_title, anchor_path, body)
-                   VALUES (?, ?, ?, ?, ?, ?)""",
-                (doc_id, node_id, anchor_page, anchor_title, anchor_path, body)
+                """INSERT INTO annotations (doc_id, node_id, anchor_page, anchor_title, anchor_path, body, source, note_type, severity)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (doc_id, node_id, anchor_page, anchor_title, anchor_path, body, source, note_type, severity)
             )
             ann_id = cur.lastrowid
         result = dict(conn.execute(
             "SELECT * FROM annotations WHERE id = ?", (ann_id,)
         ).fetchone())
-    log.info("Annotation saved | id=%s | doc_id=%s | node_id=%s", ann_id, doc_id, node_id)
+    log.info("Annotation saved | id=%s | doc_id=%s | node_id=%s | source=%s", ann_id, doc_id, node_id, source)
     return result
+
+
+def save_agent_notes(doc_id: int, notes: list):
+    """Bulk-replace all agent-generated notes for a document.
+
+    notes: list of dicts with keys: node_id, anchor_page, anchor_title, anchor_path, body, note_type, severity
+    """
+    log.info("Saving agent notes | doc_id=%s | count=%d", doc_id, len(notes))
+    with get_db() as conn:
+        conn.execute("DELETE FROM annotations WHERE doc_id = ? AND source = 'agent'", (doc_id,))
+        for n in notes:
+            conn.execute(
+                """INSERT INTO annotations (doc_id, node_id, anchor_page, anchor_title, anchor_path, body, source, note_type, severity)
+                   VALUES (?, ?, ?, ?, ?, ?, 'agent', ?, ?)""",
+                (doc_id, n.get('node_id') or f"page-{n.get('anchor_page', 1)}",
+                 n.get('anchor_page', 1), n.get('anchor_title', ''), n.get('anchor_path', ''),
+                 n.get('body', ''), n.get('note_type'), n.get('severity'))
+            )
+    log.info("Agent notes saved | doc_id=%s | count=%d", doc_id, len(notes))
+
+
+def update_notes_status(doc_id: int, status: str):
+    """Update the notes_status field on a document (pending | generating | done | failed)."""
+    log.info("Updating notes status | doc_id=%s | status=%s", doc_id, status)
+    with get_db() as conn:
+        conn.execute("UPDATE documents SET notes_status = ? WHERE id = ?", (status, doc_id))
+
+
+def get_all_page_texts(doc_id: int) -> str:
+    """Return all page texts for a document concatenated with page markers."""
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT page_num, text FROM document_pages WHERE doc_id = ? ORDER BY page_num",
+            (doc_id,)
+        ).fetchall()
+    if not rows:
+        return ''
+    parts = [f"[PAGE {r['page_num']}]\n{r['text']}" for r in rows]
+    return '\n\n'.join(parts)
 
 
 def get_annotations(doc_id: int) -> list:
@@ -726,10 +824,50 @@ def get_case(case_id: int) -> dict | None:
         return dict(row) if row else None
 
 
+def update_case_party_names(case_id: int, role: str, name: str):
+    col = 'petitioner_name' if role == 'Petitioner' else 'respondent_name'
+    with get_db() as conn:
+        conn.execute(f"UPDATE cases SET {col} = ? WHERE id = ?", (name, case_id))
+
+
 def list_cases() -> list:
     with get_db() as conn:
         rows = conn.execute("SELECT * FROM cases ORDER BY created_at DESC").fetchall()
         return [dict(r) for r in rows]
+
+
+def list_cases_with_summary() -> list:
+    """
+    Like list_cases() but includes petitioner/respondent document filenames
+    for display on the dashboard cards.
+    """
+    with get_db() as conn:
+        cases = [dict(r) for r in conn.execute(
+            "SELECT * FROM cases WHERE archived = 0 ORDER BY created_at DESC"
+        ).fetchall()]
+
+        if not cases:
+            return cases
+
+        case_ids = [c["id"] for c in cases]
+        doc_rows = conn.execute(
+            f"""SELECT cd.case_id, cd.party_role, d.original_filename
+                FROM case_documents cd
+                LEFT JOIN documents d ON cd.doc_id = d.id
+                WHERE cd.case_id IN ({','.join('?' * len(case_ids))})""",
+            case_ids,
+        ).fetchall()
+
+    doc_map: dict[int, dict] = {}
+    for row in doc_rows:
+        doc_map.setdefault(row["case_id"], {})[row["party_role"]] = row["original_filename"] or ""
+
+    for case in cases:
+        parties = doc_map.get(case["id"], {})
+        case["petitioner_doc"] = parties.get("Petitioner", None)
+        case["respondent_doc"] = parties.get("Respondent", None)
+
+    return cases
 
 
 def update_case_status(case_id: int, status: str, error_message: str | None = None):
@@ -757,10 +895,23 @@ def add_case_document(case_id: int, doc_id: int | None, party_role: str, documen
 def get_case_documents(case_id: int) -> list:
     with get_db() as conn:
         rows = conn.execute(
-            "SELECT * FROM case_documents WHERE case_id = ? ORDER BY id",
+            """SELECT cd.*,
+                      d.original_filename, d.page_count, d.uploaded_at, d.status AS doc_status
+               FROM case_documents cd
+               LEFT JOIN documents d ON cd.doc_id = d.id
+               WHERE cd.case_id = ?
+               ORDER BY cd.id""",
             (case_id,)
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+def detach_case_document(case_id: int, case_doc_id: int):
+    with get_db() as conn:
+        conn.execute(
+            "DELETE FROM case_documents WHERE id = ? AND case_id = ?",
+            (case_doc_id, case_id)
+        )
 
 
 def save_clerk_output(case_doc_id: int, clerk_output_json: str):
@@ -776,6 +927,23 @@ def set_clerk_status(case_doc_id: int, status: str):
     with get_db() as conn:
         conn.execute(
             "UPDATE case_documents SET clerk_status = ? WHERE id = ?",
+            (status, case_doc_id)
+        )
+
+
+def save_verifier_output(case_doc_id: int, verifier_output_json: str):
+    log.info("Saving verifier output | case_doc_id=%s", case_doc_id)
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE case_documents SET verifier_output = ?, verifier_status = 'done' WHERE id = ?",
+            (verifier_output_json, case_doc_id)
+        )
+
+
+def set_verifier_status(case_doc_id: int, status: str):
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE case_documents SET verifier_status = ? WHERE id = ?",
             (status, case_doc_id)
         )
 
@@ -799,6 +967,25 @@ def save_adversarial_matrix(case_id: int, matrix_json: str):
             )
 
 
+def save_citation_audit(case_id: int, audit_json: str):
+    log.info("Saving citation audit | case_id=%s", case_id)
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT id FROM case_results WHERE case_id = ?", (case_id,)
+        ).fetchone()
+        if existing:
+            conn.execute(
+                """UPDATE case_results SET citation_audit = ?,
+                   updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE case_id = ?""",
+                (audit_json, case_id),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO case_results (case_id, citation_audit) VALUES (?, ?)",
+                (case_id, audit_json),
+            )
+
+
 def get_case_result(case_id: int) -> dict | None:
     with get_db() as conn:
         row = conn.execute("SELECT * FROM case_results WHERE case_id = ?", (case_id,)).fetchone()
@@ -816,15 +1003,49 @@ def approve_matrix(case_id: int):
     update_case_status(case_id, "review_approved")
 
 
-def reject_matrix(case_id: int):
-    log.info("Human rejected adversarial matrix | case_id=%s", case_id)
+def reject_matrix(case_id: int, reason: str = ""):
+    log.info("Human rejected adversarial matrix | case_id=%s | reason=%r", case_id, reason[:80] if reason else "")
     with get_db() as conn:
         conn.execute(
-            """UPDATE case_results SET human_review_status = 'rejected',
-               updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE case_id = ?""",
-            (case_id,)
+            """UPDATE case_results
+               SET human_review_status = 'rejected',
+                   rejection_reason    = ?,
+                   updated_at          = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+               WHERE case_id = ?""",
+            (reason or None, case_id)
         )
     update_case_status(case_id, "review_rejected")
+
+
+def save_sifted_matrix(case_id: int, sifted_json: str):
+    """Save the assembled {adversarial_matrix, procedural_analysis} envelope."""
+    log.info("Saving sifted matrix | case_id=%s", case_id)
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT id FROM case_results WHERE case_id = ?", (case_id,)
+        ).fetchone()
+        if existing:
+            conn.execute(
+                """UPDATE case_results SET sifted_matrix = ?,
+                   updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE case_id = ?""",
+                (sifted_json, case_id)
+            )
+        else:
+            conn.execute(
+                "INSERT INTO case_results (case_id, sifted_matrix) VALUES (?, ?)",
+                (case_id, sifted_json)
+            )
+
+
+def save_stress_tested_matrix(case_id: int, stress_json: str):
+    """Save the assembled {sifted_matrix, stress_tested_matrix} envelope."""
+    log.info("Saving stress-tested matrix | case_id=%s", case_id)
+    with get_db() as conn:
+        conn.execute(
+            """UPDATE case_results SET stress_tested_matrix = ?,
+               updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE case_id = ?""",
+            (stress_json, case_id)
+        )
 
 
 def save_draft_court_order(case_id: int, order_json: str):
@@ -837,10 +1058,70 @@ def save_draft_court_order(case_id: int, order_json: str):
         )
 
 
-def delete_case(case_id: int):
-    log.info("Deleting case | case_id=%s", case_id)
+def save_formal_court_order(case_id: int, formal_json: str):
+    log.info("Saving formal court order | case_id=%s", case_id)
     with get_db() as conn:
-        conn.execute("DELETE FROM cases WHERE id = ?", (case_id,))
+        conn.execute(
+            """UPDATE case_results SET formal_court_order = ?,
+               updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE case_id = ?""",
+            (formal_json, case_id)
+        )
+
+
+def delete_case(case_id: int):
+    """Soft-delete: move to archive."""
+    log.info("Archiving case | case_id=%s", case_id)
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE cases SET archived = 1, archived_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?",
+            (case_id,)
+        )
+
+
+def restore_case(case_id: int):
+    log.info("Restoring case | case_id=%s", case_id)
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE cases SET archived = 0, archived_at = NULL WHERE id = ?",
+            (case_id,)
+        )
+
+
+def purge_case(case_id: int):
+    """Permanently delete an archived case."""
+    log.info("Purging case | case_id=%s", case_id)
+    with get_db() as conn:
+        conn.execute("DELETE FROM cases WHERE id = ? AND archived = 1", (case_id,))
+
+
+def list_archived_cases() -> list:
+    with get_db() as conn:
+        cases = [dict(r) for r in conn.execute(
+            "SELECT * FROM cases WHERE archived = 1 ORDER BY archived_at DESC"
+        ).fetchall()]
+
+        if not cases:
+            return cases
+
+        case_ids = [c["id"] for c in cases]
+        doc_rows = conn.execute(
+            f"""SELECT cd.case_id, cd.party_role, d.original_filename
+                FROM case_documents cd
+                LEFT JOIN documents d ON cd.doc_id = d.id
+                WHERE cd.case_id IN ({','.join('?' * len(case_ids))})""",
+            case_ids,
+        ).fetchall()
+
+    doc_map: dict[int, dict] = {}
+    for row in doc_rows:
+        doc_map.setdefault(row["case_id"], {})[row["party_role"]] = row["original_filename"] or ""
+
+    for case in cases:
+        parties = doc_map.get(case["id"], {})
+        case["petitioner_doc"] = parties.get("Petitioner", None)
+        case["respondent_doc"] = parties.get("Respondent", None)
+
+    return cases
 
 
 def get_page_text(doc_id: int, page_num: int):

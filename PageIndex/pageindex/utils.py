@@ -400,19 +400,19 @@ def get_page_tokens(pdf_path, model=None, pdf_parser="PyPDF2"):
             token_length = litellm.token_counter(model=model, text=page_text)
             page_list.append((page_text, token_length))
     elif pdf_parser == "ocrmypdf":
-        from .docling_ocr import extract_pages as _ocr_extract
+        from .ocr import extract_pages as _ocr_extract
         return _ocr_extract(pdf_path, model=model)
     else:
         raise ValueError(f"Unsupported PDF parser: {pdf_parser}")
 
-    # ── Docling auto-fallback for image-based PDFs ──
-    # If PyPDF2/PyMuPDF returned no meaningful text, try Docling automatically.
+    # ── OCR auto-fallback for image-based PDFs ──
+    # If PyPDF2/PyMuPDF returned no meaningful text, try OCR automatically.
     if isinstance(pdf_path, str):
         avg_chars = sum(len(t.strip()) for t, _ in page_list) / max(1, len(page_list))
         if avg_chars < 8:
             logging.info("get_page_tokens: image-based PDF detected (avg %.1f chars/page) — trying OCR fallback", avg_chars)
             try:
-                from .docling_ocr import extract_pages as _ocr_extract
+                from .ocr import extract_pages as _ocr_extract
                 ocr_list = _ocr_extract(pdf_path, model=model)
                 if ocr_list and any(t.strip() for t, _ in ocr_list):
                     logging.info("get_page_tokens: OCR fallback succeeded — %d pages extracted", len(ocr_list))

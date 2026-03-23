@@ -16,6 +16,34 @@ from pathlib import Path
 from functools import lru_cache
 
 _PROMPTS_DIR = Path(__file__).parent / "prompts"
+_SKILLS_DIR = _PROMPTS_DIR / "skills"
+
+
+@lru_cache(maxsize=None)
+def _read_skills(name: str) -> str:
+    """Read and cache a skills file from prompts/skills/{name}_skills.md.
+
+    Returns an empty string if the file does not exist, so callers can
+    degrade gracefully when no skills file is present for an agent.
+    """
+    path = _SKILLS_DIR / f"{name}_skills.md"
+    if not path.exists():
+        return ""
+    return path.read_text(encoding="utf-8").strip()
+
+
+def load_skills(name: str) -> str:
+    """
+    Return the skills/persona system-prompt for a named agent, or an empty
+    string if no skills file exists for that agent.
+
+    Args:
+        name: Agent name without suffix (e.g. "clerk", "judge")
+
+    Returns:
+        The skills file content (for use as a system message), or "".
+    """
+    return _read_skills(name)
 
 
 @lru_cache(maxsize=None)
@@ -65,3 +93,4 @@ def load_prompt(name: str, **variables) -> str:
 def reload_prompts():
     """Clear the template cache so edited .md files are picked up without restart."""
     _read_template.cache_clear()
+    _read_skills.cache_clear()

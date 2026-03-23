@@ -1,0 +1,35 @@
+name: Citation Auditor Agent
+stage: 2.5
+description: >
+  Verifies case citations from both parties' Clerk outputs against the Indian
+  Kanoon legal database. For each case citation found, uses an LLM to compare
+  the party's characterisation against the actual holding. Statute/rule
+  citations are skipped. Runs after Clerk+Verifier, before Registrar.
+
+model_tier: fast           # gpt-4o-mini — comparison is a focused judgement call
+temperature: 0
+chains_from: Verifier Agent
+chains_to:   Registrar Agent  # audit injected into Registrar + Judge prompts
+
+input:
+  submissions:  dict[party_role → StandardizedPartySubmission]
+  model:        LiteLLM model string (fallback)
+
+output: CitationAuditReport
+output_schema: schema.py
+
+external_dependencies:
+  - Indian Kanoon API  (https://api.indiankanoon.org/)
+    env_var: INDIAN_KANOON_API_KEY
+    graceful_degradation: if key absent or call fails, all citations marked unverified
+
+special_behaviour:
+  - only checks CASE citations — statutes, rules, articles are skipped
+  - non-fatal: failure of any single lookup does not stop the pipeline
+  - if INDIAN_KANOON_API_KEY is unset, entire external lookup is skipped gracefully
+
+files:
+  system_prompt: skills.md
+  task_prompt:   task.md    # used for the LLM holding-comparison step
+  schema:        schema.py
+  code:          agent.py

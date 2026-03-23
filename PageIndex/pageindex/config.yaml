@@ -7,3 +7,52 @@ if_add_node_id: "yes"
 if_add_node_summary: "yes"
 if_add_doc_description: "no"
 if_add_node_text: "no"
+
+# ── Adversarial Pipeline configuration ────────────────────────────────────────
+pipeline:
+  # Model tiers — each agent is routed to the appropriate tier.
+  # Set these to the same value to use one model for everything.
+  # If a tier key is absent, the case-level model is used as fallback.
+  model_fast:     "gpt-4o-mini"           # Clerk, Verifier, Drafter  (extraction / formatting)
+  model_balanced: "gpt-4o-2024-11-20"     # Registrar, Procedural     (synthesis / analysis)
+  model_powerful: "gpt-4o-2024-11-20"     # Judge, Devil's Advocate   (deep reasoning)
+  model_vision:   "gpt-4o"               # vision fallback for pages Tesseract cannot read
+                                          # set to "" to disable vision fallback entirely
+
+  # Per-agent sampling temperature (0 = fully deterministic)
+  temperature:
+    clerk:           0
+    verifier:        0
+    registrar:       0
+    procedural:      0
+    devils_advocate: 0.4   # Adversarial creativity benefits from some stochasticity
+    judge:           0
+    drafter:         0.2   # Slight variation for natural-sounding prose
+
+  # Maximum tokens to inject as document text into any agent prompt.
+  # Documents longer than this are truncated with a note.
+  max_doc_tokens: 80000
+
+# ── Monitoring configuration ──────────────────────────────────────────────────
+monitoring:
+  # Rotating log file.  Set to "" to disable.
+  # Relative paths are resolved from the PageIndex/ backend root.
+  log_file: "logs/server.log"
+  log_file_max_bytes: 10485760   # 10 MB per file
+  log_file_backup_count: 5       # keep 5 rotated files
+
+  # Webhook for error alerting.  Fired on every log entry with level=error.
+  # Supports Slack incoming webhooks, Discord webhooks, or any generic HTTP POST.
+  # Override via WEBHOOK_URL environment variable.
+  # Set to "" to disable.
+  webhook_url: ""
+
+  # LLM cost table — USD per 1 000 000 tokens.
+  # Keys are prefix-matched against the model string (longest prefix wins).
+  # Add entries here when you add new models to the pipeline.
+  cost_per_1m_tokens:
+    "gpt-4o-mini":        { input: 0.15,  output: 0.60  }
+    "gpt-4o":             { input: 2.50,  output: 10.00 }
+    "claude-opus":        { input: 15.00, output: 75.00 }
+    "claude-sonnet":      { input: 3.00,  output: 15.00 }
+    "claude-haiku":       { input: 0.80,  output: 4.00  }
